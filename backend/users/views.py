@@ -4,12 +4,13 @@ from django.contrib.auth import (
     login,
     logout
 )
-from django.db import IntegrityError
+from django.http import Http404
 from rest_framework import (
     generics,
     permissions
 )
 from rest_framework.authtoken.models import Token
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, viewsets
@@ -21,82 +22,68 @@ from users.serializers import (
     UserSerializer,
 )
 
+
 User = get_user_model()
 
 
-# class UserListView(generics.ListAPIView):
-#     '''Список всех пользователей.'''
-
-#     queryset = User.objects.all()
-#     serializer_class = UserSerializer
-
-class UserViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+class UsersPagination(PageNumberPagination):
+    page_size = 6
 
 
-class UserProfileView(generics.RetrieveAPIView):
-    '''Подробная информация о пользователе по ID.'''
+class UserViewSet(viewsets.ViewSet):
+    '''
+    Вьюсет обрабатывает список пользователей, регистрацию пользователя и
+    профиль пользователяю
+    '''
 
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-
-class CurrentUserView(generics.RetrieveAPIView):
-    '''Подробная информация о текущем пользователе.'''
-
-    serializer_class = UserSerializer
-
-    def get_object(self):
-        return self.request.user
-
-
-class UserRegistrationView(generics.CreateAPIView):
-    '''Регистрация пользователя.'''
-
-    queryset = User.objects.all()
-    serializer_class = UserRegistrationSerializer
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            email = serializer.validated_data['email']
-            username = serializer.validated_data['username']
-            try:
-                user, created = User.objects.get_or_create(
-                    email=email,
-                    username=username,
-                    defaults={
-                        'first_name': serializer.validated_data.get(
-                            'first_name', ''
-                        ),
-                        'last_name': serializer.validated_data.get(
-                            'last_name', ''
-                        ),
-                    }
-                )
-                if created:
-                    user.set_password(
-                        serializer.validated_data['password']
-                    )
-                    user.save()
-                    return Response(
-                        serializer.data, status=status.HTTP_201_CREATED
-                    )
-                return Response(
-                    'Такое username или email уже существует.',
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            except IntegrityError:
-                return Response(
-                    'Такое username или email уже существует.',
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        else:
-            return Response(
-                serializer.errors,
-                status=status.HTTP_400_BAD_REQUEST
+    def list(self, request):
+        queryset = User.objects.all().order_by('id')
+        paginator = UsersPagination()
+        page = paginator.paginate_queryset(
+            queryset,
+            request
+        )
+        if page is not None:
+            serializer = UserSerializer(
+                page,
+                many=True,
+                context={'request': request}
             )
+            return paginator.get_paginated_response(serializer.data)
+        serializer = UserSerializer(
+            queryset, many=True,
+            context={'request': request}
+        )
+        return Response(serializer.data)
+
+    def create(self, request):
+        serializer = UserRegistrationSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            user.set_password(
+                serializer.validated_data['password']
+            )
+            user.save()
+            response_serializer = UserRegistrationSerializer(
+                user,
+                context={'request': request}
+            )
+            return Response(
+                response_serializer.data,
+                status=status.HTTP_201_CREATED
+            )
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    def retrieve(self, request, pk=None):
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            raise Http404
+        serializer = UserSerializer(user, context={'request': request})
+        return Response(serializer.data)
 
 
 class ChangePasswordView(generics.UpdateAPIView):

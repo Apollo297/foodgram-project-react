@@ -4,7 +4,6 @@ from django.core.validators import RegexValidator
 from django.db import models
 
 from users.utils import my_max_length
-from users.validators import validate_username
 
 
 class User(AbstractUser):
@@ -26,8 +25,7 @@ class User(AbstractUser):
         validators=[
             RegexValidator(
                 regex=r'^[\w.@+-]+\Z'
-            ),
-            validate_username
+            )
         ],
     )
     first_name = models.CharField(
@@ -81,4 +79,3 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username[:settings.SYMBOL_LIMIT]
-
