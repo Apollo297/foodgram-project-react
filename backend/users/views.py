@@ -4,16 +4,20 @@ from django.contrib.auth import (
     login,
     logout
 )
-from django.http import Http404
+from django.contrib.auth.backends import ModelBackend
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import (
-    generics,
     permissions
 )
 from rest_framework.authtoken.models import Token
-from rest_framework.pagination import PageNumberPagination
+from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, viewsets
+from rest_framework import (
+    filters,
+    status,
+    viewsets
+)
 
 from users.serializers import (
     ChangePasswordSerializer,
@@ -26,79 +30,110 @@ from users.serializers import (
 User = get_user_model()
 
 
-class UsersPagination(PageNumberPagination):
-    page_size = 6
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    permission_classes = [permissions.AllowAny]
+    filter_backends = (
+        DjangoFilterBackend,
+        filters.OrderingFilter
+    )
+    ordering_fields = ('id',)
+    ordering = ('id',)
+    # filterset_fields = ('id',)
 
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return UserRegistrationSerializer
+        elif self.action == 'set_password':
+            return ChangePasswordSerializer
+        elif self.action in [
+            'list',
+            'retrieve',
+            'me'
+        ]:
+            return UserSerializer
+        return super().get_serializer_class()
 
-class UserViewSet(viewsets.ViewSet):
-    '''
-    Вьюсет обрабатывает список пользователей, регистрацию пользователя и
-    профиль пользователяю
-    '''
-
-    def list(self, request):
-        queryset = User.objects.all().order_by('id')
-        paginator = UsersPagination()
-        page = paginator.paginate_queryset(
-            queryset,
-            request
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(
+            self.get_queryset()
         )
+
+        page = self.paginate_queryset(queryset)
         if page is not None:
-            serializer = UserSerializer(
+            serializer = self.get_serializer(
                 page,
-                many=True,
-                context={'request': request}
+                many=True
             )
-            return paginator.get_paginated_response(serializer.data)
-        serializer = UserSerializer(
-            queryset, many=True,
-            context={'request': request}
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(
+            queryset,
+            many=True
         )
         return Response(serializer.data)
 
-    def create(self, request):
-        serializer = UserRegistrationSerializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.save()
-            user.set_password(
-                serializer.validated_data['password']
-            )
-            user.save()
-            response_serializer = UserRegistrationSerializer(
-                user,
-                context={'request': request}
-            )
-            return Response(
-                response_serializer.data,
-                status=status.HTTP_201_CREATED
-            )
+    def create(
+            self,
+            request,
+            *args,
+            **kwargs
+    ):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        user.set_password(
+            serializer.validated_data['password']
+        )
+        user.save()
+        headers = self.get_success_headers(serializer.data)
         return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
+            serializer.data,
+            status=status.HTTP_201_CREATED,
+            headers=headers
         )
 
-    def retrieve(self, request, pk=None):
-        try:
-            user = User.objects.get(pk=pk)
-        except User.DoesNotExist:
-            raise Http404
-        serializer = UserSerializer(user, context={'request': request})
+    @action(
+        detail=False,
+        methods=['post'],
+        permission_classes=[permissions.IsAuthenticated]
+    )
+    def set_password(self, request):
+        serializer = self.get_serializer(data=request.data)
+
+        if serializer.is_valid():
+            current_password = serializer.validated_data['current_password']
+            new_password = serializer.validated_data['new_password']
+
+            if request.user.check_password(current_password):
+                request.user.set_password(new_password)
+                request.user.save()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            else:
+                return Response(
+                    {'detail': 'Неверный текущий пароль.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        else:
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+    @action(
+        detail=False,
+        methods=['get'],
+        permission_classes=[permissions.IsAuthenticated]
+    )
+    def me(self, request):
+        serializer = self.get_serializer(request.user)
         return Response(serializer.data)
-
-
-class ChangePasswordView(generics.UpdateAPIView):
-    '''Изменение пароля текущим пользователем.'''
-
-    serializer_class = ChangePasswordSerializer
-    model = User
-    permission_classes = [permissions.IsAuthenticated,]
-
-    def get_object(self):
-        return self.request.user
 
 
 class LoginView(APIView):
     '''Представление для логина.'''
+
+    permission_classes = (permissions.AllowAny,)
 
     def post(self, request, *args, **kwargs):
         serializer = TokenSerializer(data=request.data)
@@ -125,6 +160,22 @@ class LoginView(APIView):
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST
         )
+
+
+class EmailBackend(ModelBackend):
+    def authenticate(
+            self,
+            request,
+            username=None,
+            password=None,
+            **kwargs
+    ):
+        try:
+            user = User.objects.get(email=username)
+            if user.check_password(password):
+                return user
+        except User.DoesNotExist:
+            return None
 
 
 class LogoutView(APIView):

@@ -31,7 +31,7 @@ class UserSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             return Subscription.objects.filter(
-                subscriber=request.user,
+                user=request.user,
                 author=obj
             ).exists()
         return False
@@ -91,7 +91,11 @@ class ChangePasswordSerializer(serializers.Serializer):
 
     def validate(self, data):
         user = self.context['request'].user
-        if not user.check_password(data.get('current_password')):
+        if not user.check_password(
+            data.get(
+                'current_password'
+            )
+        ):
             raise serializers.ValidationError(
                 {'current_password': ['Действующий пароль указан неверно.']}
             )

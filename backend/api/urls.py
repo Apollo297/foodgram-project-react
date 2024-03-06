@@ -17,5 +17,6 @@ urlpatterns = [
     path('', include(router_v1.urls)),
     path('auth/token/login/', LoginView.as_view(), name='login'),
     path('auth/token/logout/', LogoutView.as_view(), name='logout'),
+    path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.authtoken')),
 ]
