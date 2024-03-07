@@ -5,20 +5,31 @@ from django.contrib.auth import (
     logout
 )
 from django.contrib.auth.backends import ModelBackend
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import (
     permissions
 )
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
+from rest_framework.permissions import (
+    AllowAny,
+    IsAuthenticated
+)
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import (
     filters,
+    pagination,
     status,
     viewsets
 )
 
+from subscriptions.models import Subscription
+from subscriptions.serializers import (
+    SubscribingSerializer,
+    MySubscriptionsSerializer
+)
 from users.serializers import (
     ChangePasswordSerializer,
     TokenSerializer,
@@ -30,9 +41,13 @@ from users.serializers import (
 User = get_user_model()
 
 
+class CustomPaginator(pagination.PageNumberPagination):
+    page_size_query_param = 'limit'
+
+
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [AllowAny]
     filter_backends = (
         DjangoFilterBackend,
         filters.OrderingFilter
@@ -52,13 +67,17 @@ class UserViewSet(viewsets.ModelViewSet):
             'me'
         ]:
             return UserSerializer
+        elif self.action == 'subscriptions':
+            return MySubscriptionsSerializer
+        elif self.action == 'subscribe':
+            if self.request.method in ['POST']:
+                return SubscribingSerializer
         return super().get_serializer_class()
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(
             self.get_queryset()
         )
-
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(
@@ -66,7 +85,6 @@ class UserViewSet(viewsets.ModelViewSet):
                 many=True
             )
             return self.get_paginated_response(serializer.data)
-
         serializer = self.get_serializer(
             queryset,
             many=True
@@ -96,15 +114,13 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(
         detail=False,
         methods=['post'],
-        permission_classes=[permissions.IsAuthenticated]
+        permission_classes=[IsAuthenticated]
     )
     def set_password(self, request):
         serializer = self.get_serializer(data=request.data)
-
         if serializer.is_valid():
             current_password = serializer.validated_data['current_password']
             new_password = serializer.validated_data['new_password']
-
             if request.user.check_password(current_password):
                 request.user.set_password(new_password)
                 request.user.save()
@@ -123,11 +139,65 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(
         detail=False,
         methods=['get'],
-        permission_classes=[permissions.IsAuthenticated]
+        permission_classes=[IsAuthenticated]
     )
     def me(self, request):
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
+
+    @action(
+        detail=False,
+        methods=['get'],
+        permission_classes=[IsAuthenticated],
+        pagination_class=CustomPaginator
+    )
+    def subscriptions(self, request):
+        queryset = User.objects.filter(
+            subscribed_to__user=request.user
+        )
+        page = self.paginate_queryset(queryset)
+        serializer = MySubscriptionsSerializer(
+            page,
+            many=True,
+            context={'request': request}
+        )
+        return self.get_paginated_response(serializer.data)
+
+    @action(
+        detail=True,
+        methods=['post', 'delete'],
+        permission_classes=[IsAuthenticated]
+    )
+    def subscribe(self, request, **kwargs):
+        author = get_object_or_404(
+            User,
+            id=kwargs['pk']
+        )
+        if request.method == 'POST':
+            serializer = SubscribingSerializer(
+                author,
+                data=request.data,
+                context={"request": request}
+            )
+            serializer.is_valid(raise_exception=True)
+            Subscription.objects.create(
+                user=request.user,
+                author=author
+            )
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED
+            )
+        if request.method == 'DELETE':
+            get_object_or_404(
+                Subscription,
+                user=request.user,
+                author=author
+            ).delete()
+            return Response(
+                {'detail': 'Отписка произведена'},
+                status=status.HTTP_204_NO_CONTENT
+            )
 
 
 class LoginView(APIView):
@@ -163,6 +233,8 @@ class LoginView(APIView):
 
 
 class EmailBackend(ModelBackend):
+    '''Кастомный обработчик аутентификации.'''
+
     def authenticate(
             self,
             request,

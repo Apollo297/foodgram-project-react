@@ -1,17 +1,25 @@
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.db import models
-
-User = get_user_model()
 
 
 class Ingredient(models.Model):
+    ''''Модель ингредиентов.'''
+
     name = models.CharField(
+        'Название',
         max_length=settings.MAX_TAG_INGRIDIENT_LENGTH,
         blank=False,
     )
     measure_unit = models.CharField(
+        'Единицы измерения',
         max_length=settings.MAX_TAG_INGRIDIENT_LENGTH,
         blank=False,
     )
-    amount = models.FloatField()
+
+    class Meta:
+        ordering = ('name',)
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
+
+    def __str__(self):
+        return f'{self.name} ({self.measurement_unit})'
