@@ -22,6 +22,7 @@ class Recipe(models.Model):
     )
     image = models.ImageField(
         'Ссылка на картинку на сайте',
+        upload_to='recipes_images/',
         blank=False
     )
     text = models.TextField(

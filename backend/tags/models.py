@@ -14,11 +14,13 @@ class Tag(models.Model):
     color = models.CharField(
         'Цвет в HEX',
         max_length=settings.HEX_LENGTH,
+        null=True,
         unique=True,
     )
     slug = models.SlugField(
         'Уникальный слаг',
         max_length=settings.MAX_TAG_INGRIDIENT_LENGTH,
+        null=True,
         unique=True,
         validators=[
             RegexValidator(
