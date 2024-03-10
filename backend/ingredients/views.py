@@ -5,7 +5,7 @@ from rest_framework import (
 from rest_framework.permissions import AllowAny
 
 from ingredients.models import Ingredient
-from ingredients.serializers import IngredientRecipeSerializer
+from ingredients.serializers import IngredientSerializer
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -13,7 +13,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = Ingredient.objects.all()
     permission_classes = (AllowAny,)
-    serializer_class = IngredientRecipeSerializer
+    serializer_class = IngredientSerializer
     pagination_class = None
     filter_backends = (filters.SearchFilter, )
     search_fields = ('^name', )

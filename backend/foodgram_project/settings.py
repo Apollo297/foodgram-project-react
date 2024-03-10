@@ -25,7 +25,7 @@ INSTALLED_APPS = [
     'favourites',
     'ingredients',
     'recipes',
-    # 'shoppinglist',
+    'shopping_cart',
     'subscriptions',
     'tags',
     'users',

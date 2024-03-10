@@ -20,11 +20,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import (
     filters,
-    pagination,
     status,
     viewsets
 )
 
+from api.utils import CustomResultsSetPagination
 from subscriptions.models import Subscription
 from subscriptions.serializers import (
     SubscribingSerializer,
@@ -39,10 +39,6 @@ from users.serializers import (
 
 
 User = get_user_model()
-
-
-class CustomPaginator(pagination.PageNumberPagination):
-    page_size_query_param = 'limit'
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -149,7 +145,7 @@ class UserViewSet(viewsets.ModelViewSet):
         detail=False,
         methods=['get'],
         permission_classes=[IsAuthenticated],
-        pagination_class=CustomPaginator
+        pagination_class=CustomResultsSetPagination
     )
     def subscriptions(self, request):
         queryset = User.objects.filter(
@@ -177,7 +173,7 @@ class UserViewSet(viewsets.ModelViewSet):
             serializer = SubscribingSerializer(
                 author,
                 data=request.data,
-                context={"request": request}
+                context={'request': request}
             )
             serializer.is_valid(raise_exception=True)
             Subscription.objects.create(
