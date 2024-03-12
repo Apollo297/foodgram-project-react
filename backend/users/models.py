@@ -16,7 +16,7 @@ class User(AbstractUser):
         blank=False,
         unique=True,
     )
-    username = models.SlugField(
+    username = models.CharField(
         'Имя пользователя',
         help_text='Имя пользователя',
         max_length=settings.MAX_LENGTH_USER_FIELDS,

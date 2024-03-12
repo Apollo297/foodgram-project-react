@@ -1,7 +1,8 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from recipes.serializers import SubscribingRecipeSerializer
+from recipes.models import Recipe
+from recipes.serializers import SubscribingShoppingCartRecipeSerializer
 from subscriptions.models import Subscription
 
 
@@ -41,16 +42,16 @@ class MySubscriptionsSerializer(serializers.ModelSerializer):
 
     def get_recipes(self, obj):
         request = self.context.get('request')
-        limit = request.GET.get(
-            'recipes_limit',
-            '10'
-        )
-        recipes = obj.recipes.all()[:int(limit)]
-        serializer = SubscribingRecipeSerializer(
-            recipes,
-            many=True,
-            read_only=True
-        )
+        limit = request.GET.get('recipes_limit')
+        if limit is not None:
+            try:
+                limit = int(limit)
+            except ValueError:
+                limit = None
+        else:
+            limit = None
+        recipes = obj.recipes.all()[:limit] if limit is not None else obj.recipes.all()
+        serializer = SubscribingShoppingCartRecipeSerializer(recipes, many=True, read_only=True)
         return serializer.data
 
     def get_recipes_count(self, obj):
@@ -63,10 +64,7 @@ class SubscribingSerializer(serializers.ModelSerializer):
     email = serializers.ReadOnlyField()
     username = serializers.ReadOnlyField()
     is_subscribed = serializers.SerializerMethodField()
-    recipes = SubscribingRecipeSerializer(
-        many=True,
-        read_only=True
-    )
+    recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
     class Meta:
@@ -82,13 +80,16 @@ class SubscribingSerializer(serializers.ModelSerializer):
             'recipes_count'
         )
 
-    def validate(self, attrs):
-        request_user = self.context['request'].user
-        if 'author' in attrs and request_user == attrs['author']:
-            raise serializers.ValidationError(
-                {'errors': 'Нельзя подписаться на самого себя'}
-            )
-        return attrs
+    def get_recipes(self, obj):
+        recipe_limit = self.context.get('request').query_params.get('recipes_limit')
+        recipes = Recipe.objects.filter(author=obj)
+        if recipe_limit:
+            recipes = recipes[:int(recipe_limit)]
+        return SubscribingShoppingCartRecipeSerializer(
+            recipes,
+            many=True,
+            context=self.context
+        ).data
 
     def get_is_subscribed(self, obj):
         return (
@@ -103,3 +104,14 @@ class SubscribingSerializer(serializers.ModelSerializer):
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
+
+    # def get_recipes_count(self, obj):
+        # request = self.context.get('request')
+        # limit = request.query_params.get('recipes_limit')
+        # if limit is not None:
+        #     try:
+        #         limit = int(limit)
+        #         return obj.recipes.all()[:limit].count()
+        #     except ValueError:
+        #         pass
+        # return obj.recipes.count()

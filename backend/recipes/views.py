@@ -9,6 +9,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from api.filters import RecipeFilter
 from api.permissions import IsAuthorOrReadOnly
 from api.utils import CustomResultsSetPagination
 from favourites.models import Favorite
@@ -29,7 +30,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     pagination_class = CustomResultsSetPagination
     permission_classes = (IsAuthorOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
-    # filterset_class = RecipeFilter
+    filterset_class = RecipeFilter
     http_method_names = [
         'get',
         'post',
@@ -145,7 +146,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def download_shopping_cart(self, request, **kwargs):
         ingredients = RecipeIngredient.objects\
             .filter(recipe__shopping_recipe__user=request.user)\
-            .values('ingredient__name', 'ingredient__measure_unit')\
+            .values('ingredient__name', 'ingredient__measurement_unit')\
             .annotate(total_amount=Sum('amount'))\
             .order_by('ingredient__name')
 
@@ -153,7 +154,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             '{} - {} {}.'.format(
                 ingredient['ingredient__name'],
                 ingredient['total_amount'],
-                ingredient['ingredient__measure_unit']
+                ingredient['ingredient__measurement_unit']
             ) for ingredient in ingredients
         ]
         file_content = 'Список покупок:\n' + '\n'.join(file_list)

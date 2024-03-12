@@ -30,8 +30,8 @@ router_v1.register(
     basename='users'
 )
 router_v1.register(
-    r'tags', 
-    TagViewSet, 
+    r'tags',
+    TagViewSet,
     basename='tag'
 )
 

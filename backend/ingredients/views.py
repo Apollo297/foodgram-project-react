@@ -1,5 +1,4 @@
 from rest_framework import (
-    filters,
     viewsets
 )
 from rest_framework.permissions import AllowAny
@@ -15,5 +14,9 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (AllowAny,)
     serializer_class = IngredientSerializer
     pagination_class = None
-    filter_backends = (filters.SearchFilter, )
-    search_fields = ('^name', )
+    lookup_field = 'id'
+
+    def get_queryset(self):
+        query = self.request.query_params.get('name', '')
+        queryset = Ingredient.objects.filter(name__icontains=query)
+        return queryset
