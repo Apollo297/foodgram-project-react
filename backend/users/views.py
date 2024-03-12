@@ -167,23 +167,56 @@ class UserViewSet(viewsets.ModelViewSet):
     def subscribe(self, request, **kwargs):
         author_id = kwargs.get('pk')
         if not author_id:
-            return Response({'error': 'Некорректный запрос: отсутствует идентификатор пользователя.'}, status=status.HTTP_400_BAD_REQUEST)
-        author = get_object_or_404(User, id=author_id)
+            return Response(
+                {'error': 'Отсутствует идентификатор пользователя.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        author = get_object_or_404(
+            User,
+            id=author_id
+        )
         if request.user == author:
-            return Response({'error': 'Нельзя подписаться на самого себя'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {'error': 'Нельзя подписаться на самого себя'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         if request.method == 'POST':
-            if Subscription.objects.filter(user=request.user, author=author).exists():
-                return Response({'error': 'Вы уже подписаны на этого пользователя'}, status=status.HTTP_400_BAD_REQUEST)
-            Subscription.objects.create(user=request.user, author=author)
-            serializer = SubscribingSerializer(author, context={'request': request})
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            if Subscription.objects.filter(
+                user=request.user,
+                author=author
+            ).exists():
+                return Response(
+                    {'error': 'Вы уже подписаны на этого пользователя'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            Subscription.objects.create(
+                user=request.user,
+                author=author
+            )
+            serializer = SubscribingSerializer(
+                author,
+                context={'request': request}
+            )
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED
+            )
         elif request.method == 'DELETE':
             try:
-                subscription = Subscription.objects.get(user=request.user, author=author)
+                subscription = Subscription.objects.get(
+                    user=request.user,
+                    author=author
+                )
             except Subscription.DoesNotExist:
-                return Response({'error': 'Подписка не найдена'}, status=status.HTTP_404_NOT_FOUND)
+                return Response(
+                    {'error': 'Подписка не найдена'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
             subscription.delete()
-            return Response({'detail': 'Отписка произведена'}, status=status.HTTP_204_NO_CONTENT)
+            return Response(
+                {'detail': 'Отписка произведена'},
+                status=status.HTTP_204_NO_CONTENT
+            )
 
 
 class LoginView(APIView):

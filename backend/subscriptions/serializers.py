@@ -50,8 +50,16 @@ class MySubscriptionsSerializer(serializers.ModelSerializer):
                 limit = None
         else:
             limit = None
-        recipes = obj.recipes.all()[:limit] if limit is not None else obj.recipes.all()
-        serializer = SubscribingShoppingCartRecipeSerializer(recipes, many=True, read_only=True)
+        if limit is not None:
+            all_recipes = obj.recipes.all()[:limit]
+        else:
+            all_recipes = obj.recipes.all()
+        recipes = all_recipes
+        serializer = SubscribingShoppingCartRecipeSerializer(
+            recipes,
+            many=True,
+            read_only=True
+        )
         return serializer.data
 
     def get_recipes_count(self, obj):
@@ -81,7 +89,11 @@ class SubscribingSerializer(serializers.ModelSerializer):
         )
 
     def get_recipes(self, obj):
-        recipe_limit = self.context.get('request').query_params.get('recipes_limit')
+        recipe_limit = self.context.get(
+            'request'
+            ).query_params.get(
+                'recipes_limit'
+            )
         recipes = Recipe.objects.filter(author=obj)
         if recipe_limit:
             recipes = recipes[:int(recipe_limit)]
@@ -104,14 +116,3 @@ class SubscribingSerializer(serializers.ModelSerializer):
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
-
-    # def get_recipes_count(self, obj):
-        # request = self.context.get('request')
-        # limit = request.query_params.get('recipes_limit')
-        # if limit is not None:
-        #     try:
-        #         limit = int(limit)
-        #         return obj.recipes.all()[:limit].count()
-        #     except ValueError:
-        #         pass
-        # return obj.recipes.count()
