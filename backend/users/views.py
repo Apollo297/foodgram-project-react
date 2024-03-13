@@ -161,7 +161,10 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=True,
-        methods=['post', 'delete'],
+        methods=[
+            'post',
+            'delete'
+        ],
         permission_classes=[IsAuthenticated]
     )
     def subscribe(self, request, **kwargs):
@@ -210,7 +213,7 @@ class UserViewSet(viewsets.ModelViewSet):
             except Subscription.DoesNotExist:
                 return Response(
                     {'error': 'Подписка не найдена'},
-                    status=status.HTTP_404_NOT_FOUND
+                    status=status.HTTP_400_BAD_REQUEST
                 )
             subscription.delete()
             return Response(
