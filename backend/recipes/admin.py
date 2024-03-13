@@ -3,19 +3,31 @@ from django.contrib import admin
 from recipes.models import Recipe, RecipeIngredient
 
 
+class RecipeIngredientsInLine(admin.TabularInline):
+    model = Recipe.ingredients.through
+    extra = 1
+
+
+class RecipeTagsInLine(admin.TabularInline):
+    model = Recipe.tags.through
+    extra = 1
+
+
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = (
         'pk',
         'name',
+        'cooking_time',
+        'text',
         'author',
+        'image',
         'in_favorites'
     )
     list_editable = (
         'name',
         'cooking_time',
         'text',
-        'tags',
         'image',
         'author'
     )
@@ -24,6 +36,8 @@ class RecipeAdmin(admin.ModelAdmin):
         'author',
         'tags'
     )
+    inlines = (RecipeIngredientsInLine, RecipeTagsInLine)
+    search_fields = ('name', 'author')
     readonly_fields = ('in_favorites',)
     empty_value_display = '-пусто-'
 
