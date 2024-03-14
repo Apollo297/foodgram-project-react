@@ -13,7 +13,7 @@ from recipes.models import (
     Recipe,
     RecipeIngredient
 )
-from shopping_cart.models import Shopping_cart
+from shopping_cart.models import ShoppingCart
 from tags.models import Tag
 from tags.serializers import TagSerializer
 from users.serializers import UserSerializer
@@ -101,7 +101,7 @@ class AllRecipesSerializer(serializers.ModelSerializer):
             self.context.get(
                 'request'
             ).user.is_authenticated
-            and Shopping_cart.objects.filter(
+            and ShoppingCart.objects.filter(
                 user=self.context['request'].user,
                 recipe=obj
             ).exists()

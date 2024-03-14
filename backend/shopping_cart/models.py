@@ -4,7 +4,7 @@ from django.db import models
 from recipes.models import Recipe
 
 
-class Shopping_cart(models.Model):
+class ShoppingCart(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name='shopping_user',

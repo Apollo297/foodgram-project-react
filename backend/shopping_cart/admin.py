@@ -1,9 +1,9 @@
 from django.contrib import admin
 
-from shopping_cart.models import Shopping_cart
+from shopping_cart.models import ShoppingCart
 
 
-@admin.register(Shopping_cart)
+@admin.register(ShoppingCart)
 class ShoppingCartAdmin(admin.ModelAdmin):
     list_display = (
         'pk',

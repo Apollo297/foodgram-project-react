@@ -5,7 +5,6 @@ from recipes.models import Recipe
 from recipes.serializers import SubscribingShoppingCartRecipeSerializer
 from subscriptions.models import Subscription
 
-
 User = get_user_model()
 
 
@@ -91,9 +90,9 @@ class SubscribingSerializer(serializers.ModelSerializer):
     def get_recipes(self, obj):
         recipe_limit = self.context.get(
             'request'
-            ).query_params.get(
-                'recipes_limit'
-            )
+        ).query_params.get(
+            'recipes_limit'
+        )
         recipes = Recipe.objects.filter(author=obj)
         if recipe_limit:
             recipes = recipes[:int(recipe_limit)]

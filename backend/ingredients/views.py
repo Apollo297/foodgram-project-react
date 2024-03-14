@@ -1,6 +1,4 @@
-from rest_framework import (
-    viewsets
-)
+from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
 
 from ingredients.models import Ingredient
@@ -18,5 +16,4 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         query = self.request.query_params.get('name', '')
-        queryset = Ingredient.objects.filter(name__icontains=query)
-        return queryset
+        return Ingredient.objects.filter(name__icontains=query)

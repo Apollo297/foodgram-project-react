@@ -14,5 +14,4 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = None
 
     def get_queryset(self):
-        queryset = Tag.objects.all()
-        return queryset
+        return Tag.objects.all()

@@ -7,9 +7,7 @@ from django.contrib.auth import (
 from django.contrib.auth.backends import ModelBackend
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import (
-    permissions
-)
+from rest_framework import permissions
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
 from rest_framework.permissions import (
@@ -37,7 +35,6 @@ from users.serializers import (
     UserSerializer,
 )
 
-
 User = get_user_model()
 
 
@@ -55,17 +52,17 @@ class UserViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == 'create':
             return UserRegistrationSerializer
-        elif self.action == 'set_password':
+        if self.action == 'set_password':
             return ChangePasswordSerializer
-        elif self.action in [
+        if self.action in [
             'list',
             'retrieve',
             'me'
         ]:
             return UserSerializer
-        elif self.action == 'subscriptions':
+        if self.action == 'subscriptions':
             return MySubscriptionsSerializer
-        elif self.action == 'subscribe':
+        if self.action == 'subscribe':
             if self.request.method in ['POST']:
                 return SubscribingSerializer
         return super().get_serializer_class()
@@ -121,16 +118,14 @@ class UserViewSet(viewsets.ModelViewSet):
                 request.user.set_password(new_password)
                 request.user.save()
                 return Response(status=status.HTTP_204_NO_CONTENT)
-            else:
-                return Response(
-                    {'detail': 'Неверный текущий пароль.'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        else:
             return Response(
-                serializer.errors,
+                {'detail': 'Неверный текущий пароль.'},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
     @action(
         detail=False,
@@ -204,7 +199,7 @@ class UserViewSet(viewsets.ModelViewSet):
                 serializer.data,
                 status=status.HTTP_201_CREATED
             )
-        elif request.method == 'DELETE':
+        if request.method == 'DELETE':
             try:
                 subscription = Subscription.objects.get(
                     user=request.user,
@@ -220,6 +215,10 @@ class UserViewSet(viewsets.ModelViewSet):
                 {'detail': 'Отписка произведена'},
                 status=status.HTTP_204_NO_CONTENT
             )
+        return Response(
+            {'error': 'Метод запроса не поддерживается.'},
+            status=status.HTTP_405_METHOD_NOT_ALLOWED
+        )
 
 
 class LoginView(APIView):

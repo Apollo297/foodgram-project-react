@@ -26,7 +26,7 @@ from recipes.serializers import (
     RecipeCreateSerializer,
     SubscribingShoppingCartRecipeSerializer
 )
-from shopping_cart.models import Shopping_cart
+from shopping_cart.models import ShoppingCart
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -75,12 +75,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     serializer.data,
                     status=status.HTTP_201_CREATED
                 )
-            else:
-                return Response(
-                    {'errors': 'Рецепт уже добавлен в избранное.'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        elif request.method == 'DELETE':
+            return Response(
+                {'errors': 'Рецепт уже добавлен в избранное.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        if request.method == 'DELETE':
             recipe = get_object_or_404(
                 Recipe,
                 pk=kwargs.get('pk')
@@ -94,11 +93,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 return Response(
                     status=status.HTTP_204_NO_CONTENT
                 )
-            else:
-                return Response(
-                    {'errors': 'Рецепт не был добавлен в избранное.'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+            return Response(
+                {'errors': 'Рецепт не был добавлен в избранное.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        return Response(
+            {'error': 'Метод запроса не поддерживается.'},
+            status=status.HTTP_405_METHOD_NOT_ALLOWED
+        )
 
     @action(
         detail=True,
@@ -125,13 +127,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 {'errors': 'Рецепт не найден.'},
                 status=status.HTTP_404_NOT_FOUND
             )
-        elif not recipe:
+        if not recipe:
             return Response(
                 {'errors': 'Рецепт не найден.'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         if request.method == 'POST':
-            _, created = Shopping_cart.objects.get_or_create(
+            _, created = ShoppingCart.objects.get_or_create(
                 user=request.user,
                 recipe=recipe
             )
@@ -141,26 +143,23 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     serializer.data,
                     status=status.HTTP_201_CREATED
                 )
-            else:
-                return Response(
-                    {'errors': 'Рецепт уже добавлен в корзину покупок.'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        else:
-            cart_item = Shopping_cart.objects.filter(
-                user=request.user,
-                recipe=recipe
-            ).first()
-            if not cart_item:
-                return Response(
-                    {'errors': 'Рецепт не был добавлен в корзину.'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            else:
-                cart_item.delete()
-                return Response(
-                    status=status.HTTP_204_NO_CONTENT
-                )
+            return Response(
+                {'errors': 'Рецепт уже добавлен в корзину покупок.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        cart_item = ShoppingCart.objects.filter(
+            user=request.user,
+            recipe=recipe
+        ).first()
+        if not cart_item:
+            return Response(
+                {'errors': 'Рецепт не был добавлен в корзину.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        cart_item.delete()
+        return Response(
+            status=status.HTTP_204_NO_CONTENT
+        )
 
     @action(
         detail=False,
@@ -168,11 +167,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=(IsAuthenticated,)
     )
     def download_shopping_cart(self, request, **kwargs):
-        ingredients = RecipeIngredient.objects\
-            .filter(recipe__shopping_recipe__user=request.user)\
-            .values('ingredient__name', 'ingredient__measurement_unit')\
-            .annotate(total_amount=Sum('amount'))\
+        ingredients = (RecipeIngredient.objects.filter(
+            recipe__shopping_recipe__user=request.user)
+            .values('ingredient__name', 'ingredient__measurement_unit')
+            .annotate(total_amount=Sum('amount'))
             .order_by('ingredient__name')
+        )
 
         file_list = [
             '{} - {} {}.'.format(

@@ -1,6 +1,9 @@
 from django.contrib import admin
 
-from recipes.models import Recipe, RecipeIngredient
+from recipes.models import (
+    Recipe,
+    RecipeIngredient
+)
 
 
 class RecipeIngredientsInLine(admin.TabularInline):
@@ -37,7 +40,10 @@ class RecipeAdmin(admin.ModelAdmin):
         'tags'
     )
     inlines = (RecipeIngredientsInLine, RecipeTagsInLine)
-    search_fields = ('name', 'author')
+    search_fields = (
+        'name',
+        'author'
+    )
     readonly_fields = ('in_favorites',)
     empty_value_display = '-пусто-'
 
