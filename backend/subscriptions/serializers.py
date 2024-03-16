@@ -34,11 +34,11 @@ class MySubscriptionsSerializer(serializers.ModelSerializer):
                 'request'
             ).user.is_authenticated
             and Subscription.objects.filter(
-                # user=self.context['request'].user,
+                user=self.context['request'].user,
                 author=obj
             ).exists()
         )
-    
+
     def get_recipes(self, obj):
         request = self.context.get('request')
         limit = request.GET.get('recipes_limit')
