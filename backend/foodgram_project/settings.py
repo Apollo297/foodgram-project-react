@@ -1,14 +1,18 @@
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-SECRET_KEY = 'django-insecure-m5r%llcxk2w&p*0dqrk8jfj8*-f5-uw5l_(&5)_ip5ipxsh@1_'
+SECRET_KEY = os.getenv('SECRET_KEY', 'SECRET_KEY')
 
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['foodgrambrandnew.hopto.org']
 
 
 INSTALLED_APPS = [
@@ -64,12 +68,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'foodgram_project.wsgi.application'
 
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -111,11 +109,13 @@ AUTH_USER_MODEL = 'users.User'
 
 STATIC_URL = '/static/'
 
-STATIC_ROOT = BASE_DIR / 'collected_static'
+# STATIC_ROOT = BASE_DIR / 'collected_static'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_URL = '/media/'
 
-MEDIA_ROOT = '/app/media/'
+# MEDIA_ROOT = '/app/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
