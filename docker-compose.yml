@@ -1,36 +1,34 @@
-# Файл docker-compose.yml
 version: '3'
 
 volumes:
   pg_data:
-  # Новый volume — для статических файлов
   static:
+  media:
 
 services:
   db:
-    image: postgres:13.10
+    image: postgres:13
     env_file: .env
     volumes:
       - pg_data:/var/lib/postgresql/data
   backend:
     build: ./backend/
     env_file: .env
-    # Тут подключаем volume к backend
     volumes:
       - static:/backend_static
+      - media:/app/media/
+    depends_on:
+      - db
   frontend:
     env_file: .env
     build: ./frontend/
-# Добавляем новый контейнер: gateway.
-  nginx:
-    # Сбилдить и запустить образ, 
-    # описанный в Dockerfile в папке gateway
+    command: cp -r /app/build/. /frontend_static/
+    volumes:
+      - static:/frontend_static
+  gateway:
     build: ./nginx/
-    # Ключ ports устанавливает
-    # перенаправление всех запросов с порта 8000 хоста
-    # на порт 80 контейнера.
-    # А тут подключаем volume со статикой к gateway
     volumes:
       - static:/staticfiles/
+      - media:/app/media/
     ports:
       - 8000:80
