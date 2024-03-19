@@ -3,6 +3,13 @@
 Описание проекта
 
 Foodrgam - сайт, на котором пользователи могут публиковать рецепты, добавлять чужие рецепты в избранное и подписываться на публикации других авторов, скачивать список ингредиентов, необходимых для приготовления блюда.
+
+Проект доступен по аресу: https://foodgrambrandnew.hopto.org/
+Данные админа:
+логин: admin
+почта: admin@yandex.ru
+пароль: admin2530
+
 ### Инструкция по запуску проекта:
 
 **1. Клонируйте репозиторий и перейдите в него в командной строке:**
@@ -26,17 +33,17 @@ DEBUG=[значение]
 - замените username на ваш логин на DockerHub:
 ```
 cd frontend
-docker build -t username/kittygram_frontend .
+docker build -t username/foodgram_frontend .
 cd ../backend
-docker build -t username/kittygram_backend .
+docker build -t username/foodgram_backend .
 cd ../nginx
-docker build -t username/kittygram_gateway .
+docker build -t username/foodgram_nginx .
 ```
 **4. Загрузите образы на DockerHub:**
 ```
-docker push username/kittygram_frontend
-docker push username/kittygram_backend
-docker push username/kittygram_gateway
+docker push username/foodgram_frontend
+docker push username/foodgram_backend
+docker push username/foodgram_nginx
 ```
 ### Деплой на удалённом сервере
 
@@ -47,7 +54,7 @@ ssh -i путь_до_файла_с_SSH_ключом/название_файла_
 
 **2. Создайте на сервере директорию kittygram через терминал**
 ```
-mkdir kittygram
+mkdir foodgram-project-react
 ```
 
 **3. Установите docker-compose на сервер:**
@@ -61,7 +68,7 @@ sudo apt-get install docker-compose-plugin
 
 **4. Скопируйте в директорию kittygram/ файлы docker-compose.production.yml и .env:**
 ```
-scp -i path_to_SSH/SSH_name docker-compose.production.yml username@server_ip:/home/username/kittygram/docker-compose.production.yml
+scp -i path_to_SSH/SSH_name docker-compose.production.yml username@server_ip:/home/username/foodgram-project-react/docker-compose.production.yml
 ```
 
 **5. Запустите docker-compose в режиме демона:**
@@ -89,7 +96,7 @@ sudo nano /etc/nginx/sites-enabled/default
 ```
 location / {
     proxy_set_header Host $http_host;
-    proxy_pass http://127.0.0.1:9000;
+    proxy_pass http://127.0.0.1:3000;
 }
 ```
 
@@ -168,6 +175,7 @@ TELEGRAM_TOKEN                 # token выдаёт бот (@BotFather, /token, 
   "cooking_time": 1
 }
 ```
+
 
 ### Используемые технологии:
 ![image](https://img.shields.io/badge/Python-FFD43B?style=for-the-badge&logo=python&logoColor=blue)
