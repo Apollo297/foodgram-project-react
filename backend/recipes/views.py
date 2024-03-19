@@ -45,14 +45,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return RecipeCreateSerializer
 
     def get_queryset(self):
-       queryset = super().get_queryset()
-       if self.action == 'favorite':
-           queryset = RecipeFilter(
-               self.request.GET,
-               queryset=queryset,
-               request=self.request
-           ).qs
-       return queryset
+        queryset = super().get_queryset()
+        if self.action == 'favorite':
+            queryset = RecipeFilter(
+                self.request.GET,
+                queryset=queryset,
+                request=self.request
+            ).qs
+        return super().get_queryset()
 
     @action(
         detail=True,
