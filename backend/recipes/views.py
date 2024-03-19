@@ -44,16 +44,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return AllRecipesSerializer
         return RecipeCreateSerializer
 
-    @action(
-        detail=True,
-        methods=[
-            'post',
-            'delete'
-        ],
-        url_path='favorite',
-        permission_classes=(IsAuthenticated,)
-    )
-
     def get_queryset(self):
        queryset = super().get_queryset()
        if self.action == 'favorite':
@@ -64,6 +54,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
            ).qs
        return queryset
 
+    @action(
+        detail=True,
+        methods=[
+            'post',
+            'delete'
+        ],
+        url_path='favorite',
+        permission_classes=(IsAuthenticated,)
+    )
     def favorite(self, request, **kwargs):
         if request.method == 'POST':
             try:
@@ -113,14 +112,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
             status=status.HTTP_405_METHOD_NOT_ALLOWED
         )
 
-    @action(
-        detail=True,
-        methods=[
-            'post',
-            'delete'
-        ],
-        permission_classes=[IsAuthenticated]
-    )
     @action(
         detail=True,
         methods=[
