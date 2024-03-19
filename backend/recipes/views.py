@@ -53,6 +53,17 @@ class RecipeViewSet(viewsets.ModelViewSet):
         url_path='favorite',
         permission_classes=(IsAuthenticated,)
     )
+
+    def get_queryset(self):
+       queryset = super().get_queryset()
+       if self.action == 'favorite':
+           queryset = RecipeFilter(
+               self.request.GET,
+               queryset=queryset,
+               request=self.request
+           ).qs
+       return queryset
+
     def favorite(self, request, **kwargs):
         if request.method == 'POST':
             try:
