@@ -5,7 +5,7 @@ from recipes.models import Recipe
 
 
 class Favorite(models.Model):
-    ''''Модель избранных рецептов.'''
+    """Модель избранных рецептов."""
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -21,6 +21,7 @@ class Favorite(models.Model):
     )
 
     class Meta:
+        ordering = ('-id',)
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
         constraints = [

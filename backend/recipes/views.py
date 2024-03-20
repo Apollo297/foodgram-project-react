@@ -30,6 +30,8 @@ from shopping_cart.models import ShoppingCart
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
+    """Представление для рецептов."""
+
     queryset = Recipe.objects.all()
     pagination_class = CustomResultsSetPagination
     permission_classes = (IsAuthorOrReadOnly,)

@@ -3,7 +3,7 @@ from django.db import models
 
 
 class Subscription(models.Model):
-    ''''Модель подписок.'''
+    """Модель подписок."""
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -24,7 +24,7 @@ class Subscription(models.Model):
     )
 
     class Meta:
-        ordering = ('id',)
+        ordering = ('-author_id',)
         verbose_name = 'Подписчик'
         verbose_name_plural = 'Подписчики'
         constraints = [

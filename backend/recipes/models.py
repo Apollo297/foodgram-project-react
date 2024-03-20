@@ -1,5 +1,8 @@
 from django.conf import settings
-from django.core.validators import MinValueValidator
+from django.core.validators import (
+    MaxValueValidator,
+    MinValueValidator
+)
 from django.db import models
 
 from ingredients.models import Ingredient
@@ -7,7 +10,7 @@ from tags.models import Tag
 
 
 class Recipe(models.Model):
-    ''''Модель рецептов.'''
+    """Модель рецептов."""
 
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -18,34 +21,29 @@ class Recipe(models.Model):
     name = models.CharField(
         'Название',
         max_length=settings.MAX_TAG_INGRIDIENT_LENGTH,
-        blank=False
     )
     image = models.ImageField(
         'Ссылка на картинку на сайте',
         upload_to='recipes_images/',
-        blank=False
     )
     text = models.TextField(
         'Описание',
-        blank=False
     )
     cooking_time = models.PositiveIntegerField(
         'Время приготовления (в минутах)',
         validators=[
-            MinValueValidator(1)
+            MinValueValidator(settings.MIN_VALUE),
+            MaxValueValidator(settings.MAX_VALUE)
         ],
-        blank=False
     )
     tags = models.ManyToManyField(
         Tag,
         verbose_name='Теги',
         related_name='recipes',
-        blank=False
     )
     ingredients = models.ManyToManyField(
         Ingredient,
         through='RecipeIngredient',
-        blank=False
     )
     is_favorited = models.BooleanField(
         'Находится ли в избранном',
@@ -71,7 +69,7 @@ class Recipe(models.Model):
 
 
 class RecipeIngredient(models.Model):
-    '''Модель, связывающая Recipe и Ingredient.'''
+    """Модель, связывающая Recipe и Ingredient."""
 
     recipe = models.ForeignKey(
         Recipe,
@@ -83,7 +81,13 @@ class RecipeIngredient(models.Model):
         on_delete=models.CASCADE,
         related_name='ingredient_recipes'
     )
-    amount = models.PositiveIntegerField('Количество')
+    amount = models.PositiveIntegerField(
+        'Количество',
+        validators=[
+            MinValueValidator(settings.MIN_VALUE),
+            MaxValueValidator(settings.MAX_VALUE)
+        ],
+    )
 
     class Meta:
         ordering = ('id',)

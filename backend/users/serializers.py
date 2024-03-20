@@ -10,7 +10,7 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
-    '''Общий сериализатор пользователя.'''
+    """Общий сериализатор пользователя."""
 
     is_subscribed = serializers.SerializerMethodField()
 
@@ -38,7 +38,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
-    '''Сериализатор для регистрации пользователя.'''
+    """Сериализатор для регистрации пользователя."""
 
     class Meta:
         model = User
@@ -76,7 +76,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
 
 class ChangePasswordSerializer(serializers.Serializer):
-    '''Сериализатор для изменения пароля текущего пользователя.'''
+    """Сериализатор для изменения пароля текущего пользователя."""
 
     new_password = serializers.CharField(
         required=True
@@ -110,7 +110,7 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 
 class TokenSerializer(serializers.Serializer):
-    '''Сериализатор для авторизации пользователя.'''
+    """Сериализатор для авторизации пользователя."""
 
     password = serializers.CharField(
         required=True

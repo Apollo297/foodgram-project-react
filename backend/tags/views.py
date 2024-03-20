@@ -6,7 +6,7 @@ from tags.serializers import TagSerializer
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
-    '''Представление для просмотра тегов.'''
+    """Представление для просмотра тегов."""
 
     queryset = Tag.objects.all()
     permission_classes = (AllowAny,)

@@ -6,7 +6,7 @@ from ingredients.serializers import IngredientSerializer
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
-    '''Представление для просмотра ингредиентов.'''
+    """Представление для просмотра ингредиентов."""
 
     queryset = Ingredient.objects.all()
     permission_classes = (AllowAny,)

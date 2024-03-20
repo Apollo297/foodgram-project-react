@@ -2,11 +2,11 @@ from rest_framework import permissions
 
 
 class IsAuthorOrReadOnly(permissions.BasePermission):
-    '''
+    """
     Разрешает только безопасные методы.
     Позволяет всем пользователям читать данные.
     Разрешает создавать, изменять и удалять данные только их автору.
-    '''
+    """
 
     def has_permission(
             self,

@@ -127,6 +127,9 @@ MAX_TAG_INGRIDIENT_LENGTH = 200
 
 HEX_LENGTH = 7
 
+MIN_VALUE = 1
+MAX_VALUE = 32000
+
 USER = 'user'
 ADMIN = 'admin'
 USER_ROLES = (
@@ -149,9 +152,9 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
     ),
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
-    ),
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 6,
 }

@@ -39,6 +39,8 @@ User = get_user_model()
 
 
 class UserViewSet(viewsets.ModelViewSet):
+    """Представление пользователей."""
+
     queryset = User.objects.all()
     permission_classes = [AllowAny]
     serializer_class = UserSerializer
@@ -67,6 +69,19 @@ class UserViewSet(viewsets.ModelViewSet):
             if self.request.method in ['POST']:
                 return SubscribingSerializer
         return super().get_serializer_class()
+
+    def get_permissions(self):
+        permission_classes = [AllowAny]
+        if self.action == 'retrieve':
+            permission_classes = [AllowAny]
+        elif self.action in [
+            'me',
+            'set_password',
+            'subscriptions',
+            'subscribe'
+        ]:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(
@@ -108,7 +123,7 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(
         detail=False,
         methods=['post'],
-        permission_classes=[IsAuthenticated]
+        # permission_classes=[IsAuthenticated]
     )
     def set_password(self, request):
         serializer = self.get_serializer(data=request.data)
@@ -131,7 +146,7 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(
         detail=False,
         methods=['get'],
-        permission_classes=[IsAuthenticated]
+        # permission_classes=[IsAuthenticated]
     )
     def me(self, request):
         serializer = self.get_serializer(request.user)
@@ -140,7 +155,7 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(
         detail=False,
         methods=['get'],
-        permission_classes=[IsAuthenticated],
+        # permission_classes=[IsAuthenticated],
         pagination_class=CustomResultsSetPagination
     )
     def subscriptions(self, request):
@@ -161,7 +176,7 @@ class UserViewSet(viewsets.ModelViewSet):
             'post',
             'delete'
         ],
-        permission_classes=[IsAuthenticated]
+        # permission_classes=[IsAuthenticated]
     )
     def subscribe(self, request, **kwargs):
         author_id = kwargs.get('pk')
@@ -223,7 +238,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class LoginView(APIView):
-    '''Представление для логина.'''
+    """Представление для логина."""
 
     permission_classes = (permissions.AllowAny,)
 
@@ -255,7 +270,7 @@ class LoginView(APIView):
 
 
 class EmailBackend(ModelBackend):
-    '''Кастомный обработчик аутентификации.'''
+    """Кастомный обработчик аутентификации."""
 
     def authenticate(
             self,
@@ -273,7 +288,7 @@ class EmailBackend(ModelBackend):
 
 
 class LogoutView(APIView):
-    '''Представление для логаута.'''
+    """Представление для логаута."""
 
     def post(self, request, *args, **kwargs):
         request.user.auth_token.delete()

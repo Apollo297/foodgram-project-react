@@ -3,17 +3,15 @@ from django.db import models
 
 
 class Ingredient(models.Model):
-    ''''Модель ингредиентов.'''
+    """Модель ингредиентов."""
 
     name = models.CharField(
         'Название',
         max_length=settings.MAX_TAG_INGRIDIENT_LENGTH,
-        blank=False,
     )
     measurement_unit = models.CharField(
         'Единицы измерения',
         max_length=settings.MAX_TAG_INGRIDIENT_LENGTH,
-        blank=False,
     )
 
     class Meta:

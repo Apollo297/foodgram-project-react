@@ -5,18 +5,23 @@ from recipes.models import Recipe
 
 
 class ShoppingCart(models.Model):
+    """Модель списка покупок."""
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name='shopping_user',
+        verbose_name='Пользователь',
         on_delete=models.CASCADE,
     )
     recipe = models.ForeignKey(
         Recipe,
         related_name='shopping_recipe',
+        verbose_name='Рецепт',
         on_delete=models.CASCADE,
     )
 
     class Meta:
+        ordering = ('-id',)
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Список покупок'
         constraints = [

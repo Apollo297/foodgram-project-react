@@ -4,7 +4,7 @@ from django.db import models
 
 
 class Tag(models.Model):
-    '''Модель для тегов.'''
+    """Модель для тегов."""
 
     name = models.CharField(
         'Название',
