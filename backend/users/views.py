@@ -41,6 +41,7 @@ User = get_user_model()
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     permission_classes = [AllowAny]
+    serializer_class = UserSerializer
     pagination_class = CustomResultsSetPagination
     filter_backends = (
         DjangoFilterBackend,
