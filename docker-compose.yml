@@ -13,10 +13,13 @@ services:
       - pg_data:/var/lib/postgresql/data
   backend:
     build: ./backend/
+    command: python manage.py runserver 0.0.0.0:8000 --nothreading --noreload
     env_file: .env
     volumes:
       - static:/backend_static
       - media:/app/media/
+    ports:
+      - "3000:8000"
     depends_on:
       - db
   frontend:
