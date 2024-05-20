@@ -1,10 +1,39 @@
-# praktikum_new_diplom
+# Foodrgam
 
-Описание проекта
-
+Описание проекта:
 Foodrgam - сайт, на котором пользователи могут публиковать рецепты, добавлять чужие рецепты в избранное и подписываться на публикации других авторов, скачивать список ингредиентов, необходимых для приготовления блюда.
 
+Целью данного проекта было:
+
+1. Создание Restful API.
+2. Отработка запуска проекта в контейнерах.
+3. Подключение СУБД PostgreSQL.
+4. Создание volumes для сохранения загруженной информации.
+5. Получение доменного имени и SSL-сертификата для безопасного протокола передачи данных.
+6. Деплой на сервер с настройкой nginx и Gunicorn.
+7. Непрерывная CI/CD посредством GitHub Actions.
+
+### Используемые технологии:
+![image](https://img.shields.io/badge/Python-FFD43B?style=for-the-badge&logo=python&logoColor=blue)
+![image](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)
+![image](https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=green)
+![image](https://img.shields.io/badge/django%20rest-ff1709?style=for-the-badge&logo=django&logoColor=white)
+![image](https://img.shields.io/badge/VSCode-0078D4?style=for-the-badge&logo=visual%20studio%20code&logoColor=white)
+![image](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)
+![image](https://img.shields.io/badge/DockerHub-1488C6?style=for-the-badge&logo=docker&logoColor=white)
+![image](https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white)
+![image](https://img.shields.io/badge/Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white)
+![image](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white)
+![image](https://img.shields.io/badge/Gunicorn-00A98F?style=for-the-badge&logo=gunicorn&logoColor=white)
+
 Проект доступен по аресу: https://foodgrambrandnew.hopto.org/
+
+| Адрес | Описание |
+|-------------|-------------|
+| 127.0.0.1   | Главная страница   |
+| 127.0.0.1/admin/   | Для входа в панель администратора  |
+| 127.0.0.1/api/docs/   | Описание работы API  |
+
 
 Данные админа:
 логин: admin;
@@ -177,21 +206,4 @@ TELEGRAM_TOKEN                 # token выдаёт бот (@BotFather, /token, 
 }
 ```
 
-
-### Используемые технологии:
-![image](https://img.shields.io/badge/Python-FFD43B?style=for-the-badge&logo=python&logoColor=blue)
-![image](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)
-![image](https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=green)
-![image](https://img.shields.io/badge/django%20rest-ff1709?style=for-the-badge&logo=django&logoColor=white)
-![image](https://img.shields.io/badge/VSCode-0078D4?style=for-the-badge&logo=visual%20studio%20code&logoColor=white)
-![image](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)
-![image](https://img.shields.io/badge/DockerHub-1488C6?style=for-the-badge&logo=docker&logoColor=white)
-![image](https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white)
-![image](https://img.shields.io/badge/Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white)
-![image](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white)
-![image](https://img.shields.io/badge/Gunicorn-00A98F?style=for-the-badge&logo=gunicorn&logoColor=white)
-
 ##### Автор: Нечепуренко Алексей
-
-
-
