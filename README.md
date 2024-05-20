@@ -1,10 +1,10 @@
 # Foodrgam
 
-Описание проекта:
+**Описание проекта:**
 
 Foodrgam - сайт, на котором пользователи могут публиковать рецепты, добавлять чужие рецепты в избранное и подписываться на публикации других авторов, скачивать список ингредиентов, необходимых для приготовления блюда.
 
-Целью данного проекта было:
+**Целью данного проекта было:**
 
 1. Создание Restful API.
 2. Отработка запуска проекта в контейнерах.
@@ -27,22 +27,75 @@ Foodrgam - сайт, на котором пользователи могут п�
 ![image](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white)
 ![image](https://img.shields.io/badge/Gunicorn-00A98F?style=for-the-badge&logo=gunicorn&logoColor=white)
 
-Проект доступен по аресу: https://foodgrambrandnew.hopto.org/
 
 | Адрес | Описание |
 |-------------|-------------|
 | 127.0.0.1   | Главная страница   |
-| 127.0.0.1/admin/   | Для входа в панель администратора  |
+| 127.0.0.1/admin/   | Панель администратора  |
 | 127.0.0.1/api/docs/   | Описание работы API  |
 
 
-Данные админа:
+Данные для входа в панель администратора:
 
 логин: admin;
-
 почта: admin@yandex.ru;
-
 пароль: admin2530;
+
+### Примеры запросов API:
+
+Регистрация пользователя:
+- api/users/
+```
+{
+  "email": "vpupkin@yandex.ru",
+  "username": "vasya.pupkin",
+  "first_name": "Вася",
+  "last_name": "Пупкин",
+  "password": "Qwerty123"
+}
+```
+Получение рецепта
+- api/recipes/{id}/
+```
+{
+  "id": 0,
+  "tags": [
+    {
+      "id": 0,
+      "name": "Завтрак",
+      "color": "#E26C2D",
+      "slug": "breakfast"
+    }
+  ],
+  "author": {
+    "email": "user@example.com",
+    "id": 0,
+    "username": "string",
+    "first_name": "Вася",
+    "last_name": "Пупкин",
+    "is_subscribed": false
+  },
+  "ingredients": [
+    {
+      "id": 0,
+      "name": "Картофель отварной",
+      "measurement_unit": "г",
+      "amount": 1
+    }
+  ],
+  "is_favorited": true,
+  "is_in_shopping_cart": true,
+  "name": "string",
+  "image": "http://foodgram.example.org/media/recipes/images/image.jpeg",
+  "text": "string",
+  "cooking_time": 1
+}
+```
+
+### Системные требования
+
+- **Версия Python**: 3.9 или выше
+- **Операционная система**: Windows / macOS / Linux
 
 ### Инструкция по запуску проекта:
 
@@ -86,7 +139,7 @@ docker push username/foodgram_nginx
 ssh -i путь_до_файла_с_SSH_ключом/название_файла_с_SSH_ключом имя_пользователя@ip_адрес_сервера 
 ```
 
-**2. Создайте на сервере директорию kittygram через терминал**
+**2. Создайте на сервере директорию foodgram-project-react через терминал**
 ```
 mkdir foodgram-project-react
 ```
@@ -100,7 +153,7 @@ sudo sh ./get-docker.sh
 sudo apt-get install docker-compose-plugin
 ```
 
-**4. Скопируйте в директорию kittygram/ файлы docker-compose.production.yml и .env:**
+**4. Скопируйте в директорию foodgram-project-react/ файлы docker-compose.production.yml и .env:**
 ```
 scp -i path_to_SSH/SSH_name docker-compose.production.yml username@server_ip:/home/username/foodgram-project-react/docker-compose.production.yml
 ```
@@ -158,56 +211,6 @@ SSH_KEY                        # приватный ssh-ключ (cat ~/.ssh/id_
 SSH_PASSPHRASE                 # пароль для ssh-ключа
 TELEGRAM_TO                    # id телеграм-аккаунта (предоставляет @userinfobot, команда /start)
 TELEGRAM_TOKEN                 # token выдаёт бот (@BotFather, /token, имя бота)
-```
-### Примеры запросов API:
-
-Регистрация пользователя:
-- api/users/
-```
-{
-  "email": "vpupkin@yandex.ru",
-  "username": "vasya.pupkin",
-  "first_name": "Вася",
-  "last_name": "Пупкин",
-  "password": "Qwerty123"
-}
-```
-Получение рецепта
-- api/recipes/{id}/
-```
-{
-  "id": 0,
-  "tags": [
-    {
-      "id": 0,
-      "name": "Завтрак",
-      "color": "#E26C2D",
-      "slug": "breakfast"
-    }
-  ],
-  "author": {
-    "email": "user@example.com",
-    "id": 0,
-    "username": "string",
-    "first_name": "Вася",
-    "last_name": "Пупкин",
-    "is_subscribed": false
-  },
-  "ingredients": [
-    {
-      "id": 0,
-      "name": "Картофель отварной",
-      "measurement_unit": "г",
-      "amount": 1
-    }
-  ],
-  "is_favorited": true,
-  "is_in_shopping_cart": true,
-  "name": "string",
-  "image": "http://foodgram.example.org/media/recipes/images/image.jpeg",
-  "text": "string",
-  "cooking_time": 1
-}
 ```
 
 ##### Автор: Нечепуренко Алексей
